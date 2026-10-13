@@ -66,6 +66,7 @@ function Board({ xIsNext, squares, onPlay }: BoardProps) {
 export default function Game() {
   const [history, setHistory] = useState<SquareValue[][]>([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
+  const [isAscending, setIsAscending] = useState(true);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
 
@@ -99,12 +100,20 @@ export default function Game() {
       </Pressable>
     );
   });
+  if (!isAscending) {
+    moves.reverse();
+  }
 
   return (
     <View style={styles.game}>
       <View style={styles.gameBoard}>
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </View>
+      <Pressable style={styles.sortButton} onPress={() => setIsAscending(!isAscending)}>
+        <Text style={styles.sortText}>
+          {isAscending ? "Sort: ascending ↑" : "Sort: descending ↓"}
+        </Text>
+      </Pressable>
       <ScrollView style={styles.gameInfo} contentContainerStyle={styles.gameInfoContent}>
         {moves}
       </ScrollView>
@@ -183,6 +192,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   moveText: {
+    fontSize: 16,
+  },
+  sortButton: {
+    marginTop: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 4,
+    backgroundColor: "#333",
+  },
+  sortText: {
+    color: "#fff",
     fontSize: 16,
   },
   currentMove: {
