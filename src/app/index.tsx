@@ -83,6 +83,13 @@ export default function Game() {
   }
 
   const moves = history.map((squares, move) => {
+    if (move === currentMove) {
+      return (
+        <Text key={move} style={styles.currentMove}>
+          {"You are at move #" + move}
+        </Text>
+      );
+    }
     let description;
     if (move > 0) {
       description = "Go to move #" + move;
@@ -180,5 +187,11 @@ const styles = StyleSheet.create({
   },
   moveText: {
     fontSize: 16,
+  },
+  currentMove: {
+    fontSize: 16,
+    fontWeight: "bold",
+    paddingVertical: 7,
+    marginVertical: 3,
   },
 });
