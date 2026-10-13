@@ -93,16 +93,21 @@ export default function Game() {
   }
 
   const moves = history.map((squares, move) => {
+    let location = "";
+    if (move > 0) {
+      const i = squares.findIndex((square, index) => square !== history[move - 1][index]);
+      location = " (" + (Math.floor(i / 3) + 1) + ", " + ((i % 3) + 1) + ")";
+    }
     if (move === currentMove) {
       return (
         <Text key={move} style={styles.currentMove}>
-          {"You are at move #" + move}
+          {"You are at move #" + move + location}
         </Text>
       );
     }
     let description;
     if (move > 0) {
-      description = "Go to move #" + move;
+      description = "Go to move #" + move + location;
     } else {
       description = "Go to game start";
     }
