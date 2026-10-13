@@ -6,11 +6,15 @@ type SquareValue = "X" | "O" | null;
 type SquareProps = {
   value: SquareValue;
   onSquareClick: () => void;
+  highlight: boolean;
 };
 
-function Square({ value, onSquareClick }: SquareProps) {
+function Square({ value, onSquareClick, highlight }: SquareProps) {
   return (
-    <Pressable style={styles.square} onPress={onSquareClick}>
+    <Pressable
+      style={[styles.square, highlight && styles.winningSquare]}
+      onPress={onSquareClick}
+    >
       <Text style={styles.squareText}>{value}</Text>
     </Pressable>
   );
@@ -37,9 +41,12 @@ function Board({ xIsNext, squares, onPlay }: BoardProps) {
   }
 
   const winner = calculateWinner(squares);
+  const winningLine = calculateWinningLine(squares);
   let status;
   if (winner) {
     status = "Winner: " + winner;
+  } else if (squares.every((square) => square !== null)) {
+    status = "Draw! No one wins.";
   } else {
     status = "Next player: " + (xIsNext ? "X" : "O");
   }
@@ -49,7 +56,12 @@ function Board({ xIsNext, squares, onPlay }: BoardProps) {
       {[0, 1, 2].map((col) => {
         const i = row * 3 + col;
         return (
-          <Square key={i} value={squares[i]} onSquareClick={() => handleClick(i)} />
+          <Square
+            key={i}
+            value={squares[i]}
+            onSquareClick={() => handleClick(i)}
+            highlight={winningLine !== null && winningLine.includes(i)}
+          />
         );
       })}
     </View>
@@ -122,6 +134,11 @@ export default function Game() {
 }
 
 function calculateWinner(squares: SquareValue[]): SquareValue {
+  const line = calculateWinningLine(squares);
+  return line ? squares[line[0]] : null;
+}
+
+function calculateWinningLine(squares: SquareValue[]): number[] | null {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -135,7 +152,7 @@ function calculateWinner(squares: SquareValue[]): SquareValue {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return lines[i];
     }
   }
   return null;
@@ -176,6 +193,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#fff",
+  },
+  winningSquare: {
+    backgroundColor: "#ffe066",
   },
   squareText: {
     fontSize: 40,
