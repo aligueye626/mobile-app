@@ -1,56 +1,44 @@
-# Welcome to your Expo app 👋
+# Tic-Tac-Toe — React Native (Lab 6)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+The official React tutorial [Tutorial: Tic-Tac-Toe](https://react.dev/learn/tutorial-tic-tac-toe),
+rebuilt as a **React Native** app with **Expo** and **TypeScript**.
 
-## Get started
+All the code is in [`src/app/index.tsx`](src/app/index.tsx).
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Run it
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Scan the QR code with **Expo Go** (iPhone: use the Camera app). Your phone and computer must be on the same Wi‑Fi.
 
-### Other setup steps
+## Web → React Native translation
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+| Tutorial (web) | This project |
+|---|---|
+| `<div>` | `<View>` |
+| `<button onClick>` | `<Pressable onPress>` |
+| Text inside elements | Text inside `<Text>` |
+| `className` + `styles.css` | `style={styles.x}` + `StyleSheet.create` |
+| `board-row` | `<View>` with `flexDirection: "row"` |
+| `<ol>` / `<li>` | `<ScrollView>` with one `<Pressable>` per move, **below** the board |
+| JavaScript | TypeScript (`type SquareValue = "X" \| "O" \| null`, typed props) |
 
-## Learn more
+The tutorial's names are kept: `Square`, `Board`, `Game`, `onSquareClick`, `handleClick`,
+`calculateWinner`, `history`, `currentMove`, `jumpTo`, `onPlay`, `xIsNext`.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Checkpoints (commits)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. `Board of nine squares`
+2. `Playable game with a winner`
+3. `Time travel` — `xIsNext` is computed from `currentMove`
 
-## Join the community
+## Improvements (one commit each)
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+1. The current move shows "You are at move #…" as text instead of a button.
+2. The board is drawn with two loops instead of hardcoded squares.
+3. A toggle button sorts the moves ascending or descending.
+4. The three winning squares are highlighted, and a draw shows a message.
+5. Each move shows its location as (row, col).
