@@ -1,9 +1,26 @@
-# Tic-Tac-Toe — React Native (Lab 6)
+# Tic-Tac-Toe — React Native (Lab 6 + Lab 10)
 
 The official React tutorial [Tutorial: Tic-Tac-Toe](https://react.dev/learn/tutorial-tic-tac-toe),
-rebuilt as a **React Native** app with **Expo** and **TypeScript**.
+rebuilt as a **React Native** app with **Expo Router**, **TypeScript**, a **navigation drawer**, and a **light / dark theme**.
 
-All the code is in [`src/app/index.tsx`](src/app/index.tsx).
+---
+
+## What the app does
+
+| Feature | Detail |
+|---|---|
+| **Game** | Classic 3 × 3 Tic-Tac-Toe with full time-travel move history |
+| **Time travel** | Tap any past move to jump back; current move shown as text |
+| **Sort toggle** | Button reverses the move list between ascending and descending |
+| **Winning highlight** | The three winning squares are highlighted in the theme's accent colour |
+| **Draw detection** | "Draw! No one wins." when all squares are filled with no winner |
+| **Drawer** | Swipe from the left edge or tap ☰ to open the navigation menu |
+| **Screens** | Game · Settings · About — all three listed in the drawer |
+| **Dark theme** | A switch in Settings turns dark mode on/off globally and instantly |
+| **Theme context** | All colour tokens live in `src/context/ThemeContext.tsx` — only the theme string is stored as state |
+| **About page** | Shows app name, version (read from `app.json`), and developer name |
+
+---
 
 ## Run it
 
@@ -12,9 +29,28 @@ npm install
 npx expo start
 ```
 
-Scan the QR code with **Expo Go** (iPhone: use the Camera app). Your phone and computer must be on the same Wi‑Fi.
+Scan the QR code with **Expo Go** (iPhone: use the Camera app). Your phone and computer must be on the same Wi-Fi.
 
-## Web → React Native translation
+---
+
+## Project structure
+
+```
+src/
+  app/
+    _layout.tsx      ← Drawer layout + provider wiring
+    index.tsx        ← Game screen (Lab 6 game, theme-aware)
+    settings.tsx     ← Settings screen with dark-theme switch
+    about.tsx        ← About screen reading version from app.json
+  context/
+    ThemeContext.tsx  ← Theme context, provider, and useTheme hook
+```
+
+> **Rule:** No colour literals inside `StyleSheet.create()` on any screen — all colours are fetched from `useTheme()` at render time.
+
+---
+
+## Web → React Native translation (Lab 6)
 
 | Tutorial (web) | This project |
 |---|---|
@@ -23,22 +59,17 @@ Scan the QR code with **Expo Go** (iPhone: use the Camera app). Your phone and c
 | Text inside elements | Text inside `<Text>` |
 | `className` + `styles.css` | `style={styles.x}` + `StyleSheet.create` |
 | `board-row` | `<View>` with `flexDirection: "row"` |
-| `<ol>` / `<li>` | `<ScrollView>` with one `<Pressable>` per move, **below** the board |
+| `<ol>` / `<li>` | `<ScrollView>` with one `<Pressable>` per move |
 | JavaScript | TypeScript (`type SquareValue = "X" \| "O" \| null`, typed props) |
 
-The tutorial's names are kept: `Square`, `Board`, `Game`, `onSquareClick`, `handleClick`,
-`calculateWinner`, `history`, `currentMove`, `jumpTo`, `onPlay`, `xIsNext`.
+---
 
-## Checkpoints (commits)
+## Screenshots
 
-1. `Board of nine squares`
-2. `Playable game with a winner`
-3. `Time travel` — `xIsNext` is computed from `currentMove`
+### Light mode
 
-## Improvements (one commit each)
+![Game in light mode](./assets/screenshot-light.png)
 
-1. The current move shows "You are at move #…" as text instead of a button.
-2. The board is drawn with two loops instead of hardcoded squares.
-3. A toggle button sorts the moves ascending or descending.
-4. The three winning squares are highlighted, and a draw shows a message.
-5. Each move shows its location as (row, col).
+### Dark mode
+
+![Game in dark mode](./assets/screenshot-dark.png)

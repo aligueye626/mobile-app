@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useTheme } from "../context/ThemeContext";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type SquareValue = "X" | "O" | null;
 
@@ -9,16 +18,35 @@ type SquareProps = {
   highlight: boolean;
 };
 
+// ─── Square ───────────────────────────────────────────────────────────────────
+
 function Square({ value, onSquareClick, highlight }: SquareProps) {
+  const { colors } = useTheme();
+
+  const textColor =
+    value === "X"
+      ? colors.playerX
+      : value === "O"
+      ? colors.playerO
+      : colors.text;
+
   return (
     <Pressable
-      style={[styles.square, highlight && styles.winningSquare]}
+      style={[
+        styles.square,
+        {
+          backgroundColor: highlight ? colors.squareWin : colors.square,
+          borderColor: colors.border,
+        },
+      ]}
       onPress={onSquareClick}
     >
-      <Text style={styles.squareText}>{value}</Text>
+      <Text style={[styles.squareText, { color: textColor }]}>{value}</Text>
     </Pressable>
   );
 }
+
+// ─── Board ────────────────────────────────────────────────────────────────────
 
 type BoardProps = {
   xIsNext: boolean;
@@ -27,25 +55,22 @@ type BoardProps = {
 };
 
 function Board({ xIsNext, squares, onPlay }: BoardProps) {
+  const { colors } = useTheme();
+
   function handleClick(i: number) {
-    if (calculateWinner(squares) || squares[i]) {
-      return;
-    }
+    if (calculateWinner(squares) || squares[i]) return;
     const nextSquares = squares.slice();
-    if (xIsNext) {
-      nextSquares[i] = "X";
-    } else {
-      nextSquares[i] = "O";
-    }
+    nextSquares[i] = xIsNext ? "X" : "O";
     onPlay(nextSquares);
   }
 
   const winner = calculateWinner(squares);
   const winningLine = calculateWinningLine(squares);
-  let status;
+
+  let status: string;
   if (winner) {
     status = "Winner: " + winner;
-  } else if (squares.every((square) => square !== null)) {
+  } else if (squares.every((s) => s !== null)) {
     status = "Draw! No one wins.";
   } else {
     status = "Next player: " + (xIsNext ? "X" : "O");
@@ -69,16 +94,23 @@ function Board({ xIsNext, squares, onPlay }: BoardProps) {
 
   return (
     <>
-      <Text style={styles.status}>{status}</Text>
+      <Text style={[styles.status, { color: colors.text }]}>{status}</Text>
       {rows}
     </>
   );
 }
 
+// ─── Game (default export = screen) ──────────────────────────────────────────
+
 export default function Game() {
-  const [history, setHistory] = useState<SquareValue[][]>([Array(9).fill(null)]);
+  const { colors } = useTheme();
+
+  const [history, setHistory] = useState<SquareValue[][]>([
+    Array(9).fill(null),
+  ]);
   const [currentMove, setCurrentMove] = useState(0);
   const [isAscending, setIsAscending] = useState(true);
+
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
 
@@ -95,48 +127,74 @@ export default function Game() {
   const moves = history.map((squares, move) => {
     let location = "";
     if (move > 0) {
-      const i = squares.findIndex((square, index) => square !== history[move - 1][index]);
-      location = " (" + (Math.floor(i / 3) + 1) + ", " + ((i % 3) + 1) + ")";
+      const i = squares.findIndex(
+        (sq, idx) => sq !== history[move - 1][idx]
+      );
+      location =
+        " (" + (Math.floor(i / 3) + 1) + ", " + ((i % 3) + 1) + ")";
     }
+
     if (move === currentMove) {
       return (
-        <Text key={move} style={styles.currentMove}>
+        <Text
+          key={move}
+          style={[styles.currentMove, { color: colors.text }]}
+        >
           {"You are at move #" + move + location}
         </Text>
       );
     }
-    let description;
-    if (move > 0) {
-      description = "Go to move #" + move + location;
-    } else {
-      description = "Go to game start";
-    }
+
+    const description =
+      move > 0 ? "Go to move #" + move + location : "Go to game start";
+
     return (
-      <Pressable key={move} style={styles.moveButton} onPress={() => jumpTo(move)}>
-        <Text style={styles.moveText}>{description}</Text>
+      <Pressable
+        key={move}
+        style={[
+          styles.moveButton,
+          {
+            backgroundColor: colors.moveButton,
+            borderColor: colors.moveButtonBorder,
+          },
+        ]}
+        onPress={() => jumpTo(move)}
+      >
+        <Text style={[styles.moveText, { color: colors.text }]}>
+          {description}
+        </Text>
       </Pressable>
     );
   });
-  if (!isAscending) {
-    moves.reverse();
-  }
+
+  if (!isAscending) moves.reverse();
 
   return (
-    <View style={styles.game}>
+    <View style={[styles.game, { backgroundColor: colors.background }]}>
       <View style={styles.gameBoard}>
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </View>
-      <Pressable style={styles.sortButton} onPress={() => setIsAscending(!isAscending)}>
-        <Text style={styles.sortText}>
+
+      <Pressable
+        style={[styles.sortButton, { backgroundColor: colors.sortButton }]}
+        onPress={() => setIsAscending(!isAscending)}
+      >
+        <Text style={[styles.sortText, { color: colors.sortButtonText }]}>
           {isAscending ? "Sort: ascending ↑" : "Sort: descending ↓"}
         </Text>
       </Pressable>
-      <ScrollView style={styles.gameInfo} contentContainerStyle={styles.gameInfoContent}>
+
+      <ScrollView
+        style={styles.gameInfo}
+        contentContainerStyle={styles.gameInfoContent}
+      >
         {moves}
       </ScrollView>
     </View>
   );
 }
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function calculateWinner(squares: SquareValue[]): SquareValue {
   const line = calculateWinningLine(squares);
@@ -154,21 +212,21 @@ function calculateWinningLine(squares: SquareValue[]): number[] | null {
     [0, 4, 8],
     [2, 4, 6],
   ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
+  for (const [a, b, c] of lines) {
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return lines[i];
+      return [a, b, c];
     }
   }
   return null;
 }
 
+// ─── Layout styles (no colours) ───────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   game: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "#fff",
-    paddingTop: 40,
+    paddingTop: 32,
   },
   gameBoard: {
     alignItems: "center",
@@ -183,57 +241,51 @@ const styles = StyleSheet.create({
   },
   status: {
     fontSize: 20,
-    marginBottom: 10,
+    fontWeight: "600",
+    marginBottom: 12,
   },
   boardRow: {
     flexDirection: "row",
   },
   square: {
-    width: 80,
-    height: 80,
-    borderWidth: 1,
-    borderColor: "#999",
-    marginTop: -1,
-    marginRight: -1,
+    width: 90,
+    height: 90,
+    borderWidth: 2,
+    marginTop: -2,
+    marginRight: -2,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
-  },
-  winningSquare: {
-    backgroundColor: "#ffe066",
   },
   squareText: {
-    fontSize: 40,
+    fontSize: 44,
     fontWeight: "bold",
   },
   moveButton: {
     borderWidth: 1,
-    borderColor: "#999",
-    borderRadius: 4,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    marginVertical: 3,
-    minWidth: 200,
+    borderRadius: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginVertical: 4,
+    minWidth: 210,
     alignItems: "center",
   },
   moveText: {
-    fontSize: 16,
+    fontSize: 15,
   },
   sortButton: {
     marginTop: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 4,
-    backgroundColor: "#333",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 6,
   },
   sortText: {
-    color: "#fff",
-    fontSize: 16,
+    fontSize: 15,
+    fontWeight: "600",
   },
   currentMove: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "bold",
-    paddingVertical: 7,
-    marginVertical: 3,
+    paddingVertical: 9,
+    marginVertical: 4,
   },
 });
